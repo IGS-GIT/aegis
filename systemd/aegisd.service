@@ -1,0 +1,17 @@
+[Unit]
+Description=Aegis Linux Process Integrity & Auto-Shield Daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/jcardullo/Projects/game-enclave/bin/aegisd
+Restart=always
+RestartSec=3
+KillMode=process
+
+# Security / Capabilities
+CapabilityBoundingSet=CAP_BPF CAP_SYS_ADMIN CAP_NET_ADMIN
+AmbientCapabilities=CAP_BPF CAP_SYS_ADMIN CAP_NET_ADMIN
+
+[Install]
+WantedBy=multi-user.target
