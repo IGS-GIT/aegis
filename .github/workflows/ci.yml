@@ -1,0 +1,41 @@
+name: Aegis CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-verify:
+    name: Build & Verify Integrity Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install kernel & build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang \
+            llvm \
+            libbpf-dev \
+            libelf-dev \
+            zlib1g-dev \
+            libssl-dev \
+            tpm2-tools
+          # Install official standalone bpftool binary
+          curl -sL https://github.com/libbpf/bpftool/releases/download/v7.4.0/bpftool-v7.4.0-amd64.tar.gz | sudo tar -xz -C /usr/local/bin
+          sudo chmod +x /usr/local/bin/bpftool
+          bpftool version
+
+      - name: Compile Project Aegis
+        run: |
+          make clean
+          make -j$(nproc)
+
+      - name: Run Automated Verification Suite
+        run: |
+          ./test_suite.sh
